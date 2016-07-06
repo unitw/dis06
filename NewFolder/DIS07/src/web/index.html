@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+        <!-- jQuery -->
+        <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+
+        <style>
+            th.rotate {
+                height: 260px;
+                white-space: nowrap;
+            }
+
+            th.rotate > div {
+                transform:
+                    translate(0, 6px)
+                    rotate(270deg);
+                width: 30px;
+            }
+
+            th.rotate > div > span {
+                padding: 5px 10px;
+            }
+
+            .text-bold {
+                font-weight: bold;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-default">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">DIS 2015</a>
+                </div>
+            </div><!-- /.container-fluid -->
+        </nav>
+
+        <div class="container">
+            <div class="jumbotron">
+                <h1>Hello, World!</h1>
+                <p class="lead">Amazing things are going to happen here!</p>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-striped table-condensed" id="table">
+        </table>
+
+        <script type="text/javascript">
+            (function ($) {
+                $(function () {
+                    var $table = $('#table');
+
+                    $.ajax('/data').done(function (data) {
+                        var year = data.year;
+                        var articles = data.articles;
+                        var shops = data.shops;
+                        var values = data.values;
+
+                        // Construct table head
+                        var $thead = $('<thead>');
+                        var $thRow = $('<tr>').appendTo($thead);
+                        $thRow.append('<th colspan="2">sales</th>');
+                        for (var i in articles) {
+                            var article = articles[i];
+                            $thRow.append($('<th class="rotate">').append($('<div>').append($('<span>').text(article))));
+                        }
+                        $thRow.append('<th>total</th>');
+
+                        // Construct table body
+                        var $tbody = $('<tbody>');
+                        for (var j in shops) {
+                            var shop = shops[j];
+                            var months = values[j];
+                            var cityNameAppended = false;
+                            var yearTotal = {total: 0};
+
+                            for (var month in months) {
+                                var articleValues = months[month];
+                                var monthName = moment([year, month - 1, 1]).format('MMMM');
+                                var $tr = $('<tr>').appendTo($tbody);
+
+                                // Append city name one time only.
+                                if (!cityNameAppended) {
+
+                                    var rowSpan = 1;
+                                    for (var k in months) {
+                                        rowSpan++;
+                                    }
+                                    $('<th>').attr('rowspan', rowSpan).text(shop).appendTo($tr);
+                                    cityNameAppended = true;
+                                }
+
+                                // Display month name.
+                                $('<th style="min-width: 120px">').text(monthName + ', ' + year).appendTo($tr);
+
+                                // Add each article.
+                                var total = 0;
+                                for (var articleId in articleValues) {
+                                    var value = parseInt(articleValues[articleId]);
+
+                                    // Save for overall total value
+                                    yearTotal[articleId] || (yearTotal[articleId] = 0);
+                                    yearTotal[articleId] += value;
+
+                                    total += value;
+                                    $('<td class="text-right">').text(value).appendTo($tr);
+                                }
+
+                                // Write total value.
+                                yearTotal['total'] += total;
+                                $('<td class="text-right">').text(total).appendTo($tr);
+                            }
+
+                            // Add total row.
+                            var $totalTr = $('<tr>').appendTo($tbody);
+                            $('<th>').text('total ' + year).appendTo($totalTr);
+
+                            for (var totalArticleId in yearTotal) {
+                                if (totalArticleId == 'total') {
+                                    continue;
+                                }
+
+                                var value = yearTotal[totalArticleId];
+                                $('<td class="text-right text-bold">').text(value).appendTo($totalTr);
+                            }
+
+                            $('<td class="text-right text-bold">').text(yearTotal['total']).appendTo($totalTr);
+                        }
+
+                        $table.empty();
+                        $table.append($thead);
+                        $table.append($tbody);
+                    });
+
+                });
+            })(jQuery);
+        </script>
+    </body>
+</html>

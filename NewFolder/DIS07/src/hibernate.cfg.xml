@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.dialect">org.hibernate.dialect.DB2Dialect</property>
+        <property name="hibernate.connection.autocommit">false</property>
+        <property name="hibernate.connection.driver_class">com.ibm.db2.jcc.DB2Driver</property>
+        <property name="connection.url">jdbc:db2://vsisls4.informatik.uni-hamburg.de:50001/VSISP</property>
+        <property name="connection.username">vsisp66</property>
+        <property name="connection.password">f0YUIGno</property>
+
+        <!-- DB schema will be updated if needed -->
+        <property name="hbm2ddl.auto">validate</property>
+
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.hbm2ddl.auto">create</property>
+        <mapping class="de.dis2016.entities.Sale"/>
+        <mapping class="de.dis2016.entities.Article"/>
+        <mapping class="de.dis2016.entities.Shop"/>
+        <mapping class="de.dis2016.entities.Star"/>
+    </session-factory>
+</hibernate-configuration>
